@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="../js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<title>轰轰 后台管理</title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap-grid.min.css" />
+	<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css" />
+	<link rel="stylesheet" href="../css/laydate.css">
+	<link rel="stylesheet" href="../css/list.css">
+	<script src="../js/laydate.js"></script>
+	<style type="text/css">
+		.apply-record {
+			width: 80%;
+			height: auto;
+			margin: 0 auto;
+			overflow: hidden;
+		}
+
+		.apply-record .tab {
+			float: left;
+			width: 15%;
+			border: 1px solid #aaa;
+			margin-right: 45px;
+			padding-bottom: 20px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		.apply-record .tab li {
+			height: 60px;
+			line-height: 60px;
+		}
+
+		.apply-record .tab .tab-item {
+			list-style: none;
+			width: 100px;
+			text-align: center;
+			font-size: 16px;
+			margin: 0 auto;
+		}
+
+		.apply-record .tab .tab-item.active {
+			color: #3F86FF;
+			border-bottom: 3px solid #0000FF;
+		}
+
+		.products .mainCont {
+			display: none;
+			width: 95%;
+			overflow: auto;
+			text-align: center;
+			border: 1px solid #aaa;
+			border-radius: 5px;
+			padding-left: 20px;
+			padding-right: 20px;
+			padding-bottom: 40px;
+		}
+
+		.products .mainCont.selected {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+
+<div class="apply-record">
+	<div class="laydate_top">
+		轰轰后台
+	</div>
+	<ul class="tab">
+		<li class="tab-item">导入输入</li>
+		<li class="tab-item active">整体数据</li>
+		<li class="tab-item">数据管理</li>
+		<li class="tab-item">数据池</li>
+		<li class="tab-item">大排行</li>
+	</ul>
+	<div class="content products">
+		<div class="mainCont" style="padding-top:20px;">
+			<form name="upload" id="upload" action="" method="post" enctype="multipart/form-data">
+				<div class="input-group">
+					<div class="custom-file">
+						<input type="file" class="upfile" id="upfile" />
+						<label class="custom-file-label" for="upfile">浏览文件</label>
+					</div>
+					<div class="input-group-append">
+						<button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">导入</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="mainCont selected">
+			<div class="laydate_right">
+				<div class="laydate-box">
+					<input type="text" id="laydateInput" placeholder="xxxx年xx月xx日" />
+					<img src="../images/calendar.png" alt="" class="icon data-icon" />
+					<div class="select-date">
+						<div class="select-date-header">
+							<ul class="heade-ul">
+								<li class="header-item header-item-one">
+									<select name="" id="yearList"></select>
+								</li>
+								<li class="header-item header-item-two" onselectstart="return false">
+									<select name="" id="monthList"></select>
+								</li>
+								<li class="header-item header-item-three" onselectstart="return false">
+									<span class="reback">回到今天</span>
+								</li>
+							</ul>
+						</div>
+						<div class="select-date-body">
+							<ul class="week-list">
+								<li>日</li>
+								<li>一</li>
+								<li>二</li>
+								<li>三</li>
+								<li>四</li>
+								<li>五</li>
+								<li>六</li>
+							</ul>
+							<ul class="day-tabel"></ul>
+						</div>
+					</div>
+				</div>
+				<div class="list_boxs list_box_s">
+					<div class="list_search">
+						<input type="text" id="city" placeholder="输入城市进行搜索">
+						<div class="list_search_img" onclick="search()">
+							<img src="../images/search.png" alt="">
+						</div>
+					</div>
+				</div>
+				<!--内容-->
+				<div class="date" id="searchDay">7月10号</div>
+				<div class="content_s">
+
+					<ul class="content_neirong">
+						<li><span>在线人数：</span><b>30</b>人</li>
+						<li><span>一共有的数据量：</span><b>360</b></li>
+						<li><span>添加到我的小程序人数：</span><b>360</b>人</li>
+						<li><span>授权-登录过的总人数：</span><b>360</b>人</li>
+					</ul>
+					<ul class="content_neirong">
+						<li><span>真数据量：</span><b>360</b>条</li>
+						<li><span>假数据量：</span><b>360</b>条</li>
+						<li><span>一共有的数据点赞量：</span><b>360</b>次</li>
+						<li><span>一共有的数据评论量：</span><b>360</b>条</li>
+					</ul>
+				</div>
+				<!--总共-->
+				<div class="content_zong">
+					<ul class="congent_zongs">
+						<li><span>真实数据共：</span><b>300</b></li>
+						<li><span>真实数据共：</span><b>300</b><span class="zan">点赞共：</span><b>3</b>次</li>
+						<li><span>真实数据评论量：</span><b>100</b></li>
+						<li><span>需求类：</span><b>100</b></li>
+						<li><span>非需求类：</span><b>100</b></li>
+					</ul>
+					<ul class="congent_zong_s">
+						<li><span>假数据共：</span><b>300</b></li>
+						<li><span>假数据共：</span><b>300</b><span class="zan">点赞共：</span><b>3</b>次</li>
+						<li><span>假数据评论量：</span><b>100</b></li>
+					</ul>
+				</div>
+				<ul class="content_bottom">
+					<li>最短时间评论数据最高：</li>
+					<li>最短时间点赞数据最高：</li>
+				</ul>
+			</div>
+		</div>
+		<div class="mainCont">
+			<div class="list_boxs">
+				<div class="list_search">
+					<input type="text"  id = "keyword" placeholder="输入相关字进行查找">
+					<div class="list_search_img" onclick="dataSearch()">
+						<img src="../images/search.png" alt="">
+					</div>
+				</div>
+			</div>
+			<ul class="list_content" id="dataList">
+				<h2>搜索结果列表：</h2>
+				<li>
+					<div class="list_content_time">
+						<span>发布日期：</span>
+						<p>7/9</p>
+					</div>
+					<div class="list_content_person">
+						<div class="list_content_person_left">
+							<div class="list_content_person_left_img">
+								<img src="../images/p_3.jpg" alt="">
+							</div>
+							<span>昵称</span>
+						</div>
+						<div class="list_content_text">
+							<div class="text">文字内容</div>
+							<span>文字内容文字内容文字内容文字内容文字内容文字内容文字</span>
+						</div>
+						<!-- 下一行data-msgId是消息的id -->
+						<ul class="list_title" data-msgId="1">
+							<span>标题:</span>
+							<li><span>点赞量: <b>40</b></span></li>
+							<li><span>评论量: <b>40</b></span></li>
+						</ul>
+						<div class="list_btns">
+							<div class="btn-group">
+								<button class="btn btn-success editMsg">
+									<i class="fa fa-edit"></i>编辑
+								</button>
+								<button class="btn btn-danger delMsg">
+									<i class="fa fa-trash"></i>删除
+								</button>
+							</div>
+						</div>
+					</div>
+
+				</li>
+
+
+			</ul>
+		</div>
+		<div class="mainCont">
+			<div class="data_content">
+				<div class="paihang">
+					排行榜数据池
+				</div>
+				<div class="youzhi">
+					高分区优质内容数据
+				</div>
+				<ul class="chi">
+					<li class="chi_left">进阶池</li>
+					<li>进阶池</li>
+					<li>后退池</li>
+				</ul>
+				<ul class="chi">
+					<li class="chi_left">基础池</li>
+					<li>基础池</li>
+					<li>基础池</li>
+				</ul>
+			</div>
+
+		</div>
+		<div class="mainCont">
+			<ul class="list_content" id="rankingHtml">
+				<li>
+					<div class="list_content_time">
+						<span>第</span>
+						<p>三</p>名
+					</div>
+					<div class="list_content_person">
+						<div class="list_content_person_left">
+							<div class="list_content_person_left_img">
+								<img src="../images/p_3.jpg" alt="">
+							</div>
+							<span>昵称</span>
+						</div>
+						<div class="list_content_text">
+							<div class="text">弹幕内容</div>
+							<span>弹幕内容弹幕内容</span>
+						</div>
+						<ul class="list_title">
+							<li><span>点赞量: <b>40</b></span></li>
+							<li><span>评论量: <b>40</b></span></li>
+						</ul>
+						<div class="list_btns">
+							<span>当前排名: <b>20</b></span>
+						</div>
+					</div>
+
+				</li>
+				<li>
+					<div class="list_content_time">
+						<span>第</span>
+						<p>三</p>名
+					</div>
+					<div class="list_content_person">
+						<div class="list_content_person_left">
+							<div class="list_content_person_left_img">
+								<img src="../images/p_3.jpg" alt="">
+							</div>
+							<span>昵称</span>
+						</div>
+						<div class="list_content_text">
+							<div class="text">弹幕内容</div>
+							<span>弹幕内容弹幕内容弹幕内容</span>
+						</div>
+						<ul class="list_title">
+							<li><span>点赞量: <b>40</b></span></li>
+							<li><span>评论量: <b>40</b></span></li>
+						</ul>
+						<div class="list_btns">
+							<span>当前排名: <b>20</b></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- Modal -->
+<div id="msgModal" class="modal fade" tabindex="-1" role="dialog">
+	<!--<form action="" method="post">-->
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">编辑</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">
+									<i class="fa fa-thumbs-up"></i>
+								</div>
+							</div>
+							<input type="number" class="form-control" name="msgDigg" id="msgDigg" value="" placeholder="点赞数"/>
+							<input type="hidden" name="msgId" id="msgId" value="" />
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-undo"></i> 取消</button>
+					<button type="submit" class="btn btn-primary" onclick="save()"><i class="fa fa-save"></i> 保存</button>
+				</div>
+				</div>
+				</div>
+	<!--</form>-->
+</div>
+</div>
+</div>
+</body>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bootstrap.bundle.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var cxtPath = "https://localhost:8088"
+	// var cxtPath = "https://106.13.73.189:8088"
+    $(function() {
+
+        $(".apply-record .tab .tab-item").click(function() {
+            $(this).addClass("active").siblings().removeClass("active");
+            $(".products .mainCont").eq($(this).index()).show().siblings().hide();
+        })
+        search();//整体数据
+        dataSearch();//数据管理
+        ranking();//排行榜
+    })
+    //整体数据搜索按钮
+    function search() {
+        //整体数据
+        let date =   $("#laydateInput").val();
+        var res = new RegExp(" ", "g");
+        date = date.replace(res,"");
+        var res2 = new RegExp("-", "g");
+        date = date.replace(res2,"/");
+        $("#searchDay").text(date)
+        $("#city").val();
+        sendAjax("/data/default?date="+date+"&city="+$("#city").val(),"get","",function (data) {
+            console.log(data.data)
+            let defaultdData = data.data;
+            let detailData = data.data.detail;
+            let commentSum=0,likeSum=0;
+            if (detailData != null && detailData.length >= 2){
+                $.each(detailData,function (index,val) {
+                    commentSum += val.commentSum;
+                    likeSum += val.likeSum;
+                    $(".content_zong").empty();
+                    if (val.truth) {
+                        let detailtrueHtml = '<ul class="congent_zongs">\n' +
+                            '<li><span>真实数据共：</span><b>'+defaultdData.realData+'</b></li>\n' +
+                            '<li><span>真实数据共：</span><b>'+defaultdData.realData+'</b><span class="zan">点赞共：</span><b>'+val.likeSum+'</b>次</li>\n' +
+                            '<li><span>真实数据评论量：</span><b>'+val.commentSum+'</b></li>\n' +
+                            '<li><span>需求类：</span><b>0</b></li>\n' +
+                            '<li><span>非需求类：</span><b>0</b></li>\n' +
+                            '</ul>'
+
+                        $(".content_zong").append(detailtrueHtml);
+                    }else {
+                        let detailfalseHtml='<ul class="congent_zong_s">\n' +
+                            '<li><span>假数据共：</span><b>'+defaultdData.bumData+'</b></li>\n' +
+                            '<li><span>假数据共：</span><b>'+defaultdData.bumData+'</b><span class="zan">点赞共：</span><b>'+val.likeSum+'</b>次</li>\n' +
+                            '<li><span>假数据评论量：</span><b>'+val.commentSum+'</b></li>\n' +
+                            '</ul>';
+                        $(".content_zong").append(detailfalseHtml);
+                    }
+                })
+            }else if (detailData != null && detailData.length == 1) {
+                $.each(detailData,function (index,val) {
+                    commentSum += val.commentSum;
+                    likeSum += val.likeSum;
+                    if (val.truth) {
+                        $(".content_zong").empty();
+                        let detailtrueHtml = '<ul class="congent_zongs">\n' +
+                            '<li><span>真实数据共：</span><b>'+defaultdData.realData+'</b></li>\n' +
+                            '<li><span>真实数据共：</span><b>'+defaultdData.realData+'</b><span class="zan">点赞共：</span><b>'+val.likeSum+'</b>次</li>\n' +
+                            '<li><span>真实数据评论量：</span><b>'+val.commentSum+'</b></li>\n' +
+                            '<li><span>需求类：</span><b>0</b></li>\n' +
+                            '<li><span>非需求类：</span><b>0</b></li>\n' +
+                            '</ul>'
+                        $(".content_zong").append(detailtrueHtml);
+                        let detailfalseHtml='<ul class="congent_zong_s">\n' +
+                            '<li><span>假数据共：</span><b>0</b></li>\n' +
+                            '<li><span>假数据共：</span><b>0</b><span class="zan">点赞共：</span><b>0</b>次</li>\n' +
+                            '<li><span>假数据评论量：</span><b>0</b></li>\n' +
+                            '</ul>';
+
+                        $(".content_zong").append(detailfalseHtml);
+                    }else {
+                        $(".content_zong").empty();
+                        let detailtrueHtml = '<ul class="congent_zongs">\n' +
+                            '<li><span>真实数据共：</span><b>0</b></li>\n' +
+                            '<li><span>真实数据共：</span><b>0</b><span class="zan">点赞共：</span><b>0</b>次</li>\n' +
+                            '<li><span>真实数据评论量：</span><b>0</b></li>\n' +
+                            '<li><span>需求类：</span><b>0</b></li>\n' +
+                            '<li><span>非需求类：</span><b>0</b></li>\n' +
+                            '</ul>'
+                        $(".content_zong").append(detailtrueHtml);
+                        let detailfalseHtml='<ul class="congent_zong_s">\n' +
+                            '<li><span>假数据共：</span><b>'+defaultdData.bumData+'</b></li>\n' +
+                            '<li><span>假数据共：</span><b>'+defaultdData.bumData+'</b><span class="zan">点赞共：</span><b>'+val.likeSum+'</b>次</li>\n' +
+                            '<li><span>假数据评论量：</span><b>'+val.commentSum+'</b></li>\n' +
+                            '</ul>';
+                        $(".content_zong").append(detailfalseHtml);
+                    }
+                })
+            }else {
+                $(".content_zong").empty();
+                let detailtrueHtml = '<ul class="congent_zongs">\n' +
+                    '<li><span>真实数据共：</span><b>0</b></li>\n' +
+                    '<li><span>真实数据共：</span><b>0</b><span class="zan">点赞共：</span><b>0</b>次</li>\n' +
+                    '<li><span>真实数据评论量：</span><b>0</b></li>\n' +
+                    '<li><span>需求类：</span><b>0</b></li>\n' +
+                    '<li><span>非需求类：</span><b>0</b></li>\n' +
+                    '</ul>'
+                $(".content_zong").append(detailtrueHtml);
+                let detailfalseHtml='<ul class="congent_zong_s">\n' +
+                    '<li><span>假数据共：</span><b>0</b></li>\n' +
+                    '<li><span>假数据共：</span><b>0</b><span class="zan">点赞共：</span><b>0</b>次</li>\n' +
+                    '<li><span>假数据评论量：</span><b>0</b></li>\n' +
+                    '</ul>';
+                $(".content_zong").append(detailfalseHtml);
+            }
+
+            let html ='<ul class="content_neirong">\n' +
+                '<li><span>在线人数：</span><b>'+defaultdData.onlineUsers+'</b>人</li>\n' +
+                '<li><span>一共有的数据量：</span><b>'+defaultdData.allData+'</b></li>\n' +
+                '<li><span>添加到我的小程序人数：</span><b>'+defaultdData.authUser+'</b>人</li>\n' +
+                '<li><span>授权-登录过的总人数：</span><b>'+defaultdData.authUser+'</b>人</li>\n' +
+                '</ul>\n' +
+                '<ul class="content_neirong">\n' +
+                '<li><span>真数据量：</span><b>'+defaultdData.realData+'</b>条</li>\n' +
+                '<li><span>假数据量：</span><b>'+defaultdData.bumData+'</b>条</li>\n' +
+                '<li><span>一共有的数据点赞量：</span><b>'+likeSum+'</b>次</li>\n' +
+                '<li><span>一共有的数据评论量：</span><b>'+commentSum+'</b>条</li>\n' +
+                '</ul>'
+            $(".content_s").empty();
+            $(".content_s").html(html);
+
+        },function (err) {
+            alert("获取数据失败")
+        })
+    }
+    //数据管理 搜索页面
+    function dataSearch() {
+        sendAjax("/data/dataList?keyword="+$("#keyword").val(),"get","",function (data) {
+			console.log(data.data.content)
+			let list = data.data.content
+            $("#dataList").empty()
+            if (list != null && list.length > 0) {
+			    $.each(list , function (index,val) {
+                    let html ='<li>\n' +
+                        '<div class="list_content_time">\n' +
+                        '<span>发布日期：</span>\n' +
+                        '<p>'+val.createdAt.split(" ")[0]+'</p>\n' +
+                        '</div>\n' +
+                        '<div class="list_content_person">\n' +
+                        '<div class="list_content_person_left">\n' +
+                        '<div class="list_content_person_left_img">\n' +
+                        '<img src="'+val.user.headImg+'" alt="">\n' +
+                        '</div>\n' +
+                        '<span>'+val.user.nickname+'</span>\n' +
+                        '</div>\n' +
+                        '<div class="list_content_text">\n' +
+                        '<div class="text">'+val.city+'</div>\n' +
+                        '<span>'+val.content.substr(0,30)+'</span>\n' +
+                        '</div>\n' +
+                        '<ul class="list_title" data-msgId="1">\n' +
+                        '<span>标题:</span>\n' +
+                        '<li><span>点赞量: <b>'+val.likeSum+'</b></span></li>\n' +
+                        '<li><span>评论量: <b>'+val.commentSum+'</b></span></li>\n' +
+                        '</ul>\n' +
+                        '<div class="list_btns">\n' +
+                        '<div class="btn-group">\n' +
+                        '<button class="btn btn-success editMsg" onclick="editMsg('+val.id+','+val.likeSum+')">\n' +
+                        '<i class="fa fa-edit"></i>编辑\n' +
+                        '</button>\n' +
+                        '<button class="btn btn-danger delMsg" onclick="delMsg('+val.id+')">\n' +
+                        '<i class="fa fa-trash"></i>删除\n' +
+                        '</button>\n' +
+                        '</div>\n' +
+                        '</div>\n' +
+                        '</div>\n' +
+                        '</li>'
+
+					$("#dataList").append(html)
+
+                })
+			}else {
+                $("#dataList").html("暂无数据")
+			}
+
+        },function (err) {
+			
+        });
+    }
+    function editMsg(id,count){
+        // 编辑点赞
+        // $(".editMsg").click(function() {
+            $("#msgModal").modal("show")
+            // let diggCount	= $(this).parent().parent().siblings(".list_title").find("li:first b").text()
+            // let msgId			= $(this).parent().parent().siblings(".list_title").attr("data-msgId")
+            $("#msgDigg").val(count)
+            $("#msgId").val(id)
+        // })
+	}
+	//保存数据
+	function save() {
+        let dataform = new FormData();
+        dataform.append("topicId",$("#msgId").val())
+        dataform.append("likeNum",$("#msgDigg").val())
+        sendAjax("/data/update","post",dataform,function (data) {
+            $("#msgModal").modal("hide")
+            dataSearch();
+        },function (err) {
+
+        })
+    }
+	//删除话题
+	function delMsg(id) {
+        let dataform = new FormData();
+        dataform.append("topicId",id)
+        sendAjax("/data/del","post",dataform,function (data) {
+            dataSearch()
+        },function (err) {
+
+        })
+    }
+    //排行榜
+    function ranking() {
+        sendAjax("/data/leaderBoard","post","",function (data) {
+            console.log("-------")
+            console.log(data.data)
+			let dataRank = data.data;
+            $("#rankingHtml").empty();
+            if (dataRank != null && dataRank.length > 0 ){
+                $.each(dataRank,(index,val)=>{
+                    let html = '<li>\n' +
+                        '<div class="list_content_time">\n' +
+                        '<span>第</span>\n' +
+                        '<p>'+val.ranking+'</p>名\n' +
+                        '</div>\n' +
+                        '<div class="list_content_person">\n' +
+                        '<div class="list_content_person_left">\n' +
+                        '<div class="list_content_person_left_img">\n' +
+                        '<img src="'+val.user.headImg+'" alt="">\n' +
+                        '</div>\n' +
+                        '<span>'+val.user.nickname+'</span>\n' +
+                        '</div>\n' +
+                        '<div class="list_content_text">\n' +
+                        '<div class="text">弹幕内容</div>\n' +
+                        '<span>'+val.content.substr(0,30)+'</span>\n' +
+                        '</div>\n' +
+                        '<ul class="list_title">\n' +
+                        '<li><span>点赞量: <b>'+val.likeSum+'</b></span></li>\n' +
+                        '<li><span>评论量: <b>'+val.commentSum+'</b></span></li>\n' +
+                        '</ul>\n' +
+                        '<div class="list_btns">\n' +
+                        '<span>当前排名: <b>'+val.ranking+'</b></span>\n' +
+                        '</div>\n' +
+                        '</div>\n' +
+                        '</li>'
+                    $("#rankingHtml").append(html);
+				})
+			}else {
+                $("#rankingHtml").html("暂无数据")
+			}
+
+        },function (err) {
+
+        })
+    }
+    /**
+     * 整体ajax
+     * @param url
+     * @param method
+     * @param formData
+     * @param successCallBack
+     * @param errorCallBack
+     */
+    function sendAjax  (url, method, formData, successCallBack, errorCallBack) {
+        if (! formData) {
+            formData = "";
+        }
+        $.ajax({
+            url: cxtPath + url,
+            method: method,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (!! successCallBack)
+                    successCallBack(data);
+            },
+            error: function(err){
+                if (!! errorCallBack)
+                    errorCallBack(err);
+            }
+        });
+    }
+
+    function getSelectDate(result) {
+        //这里获取选择的日期
+        console.log(result);
+    }
+
+    // 删除话题
+    $(".delMsg").click(function(){
+        let msgId			= $(this).parent().parent().siblings(".list_title").attr("data-msgId")
+        $.ajax({
+            type: "post",
+            url: "",
+            data: { msgId: msgId }
+        }).done(function( data ){
+            console.log( data )
+        })
+    })
+</script>
+</html>

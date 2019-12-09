@@ -1,0 +1,67 @@
+server:
+  port: 8088
+  ssl:
+    key-store: classpath:3156776_hh.emmspirit.com.pfx
+    key-store-password: T5tspFX7
+    key-store-type: PKCS12
+    enabled: true
+  tomcat:
+    max-http-header-size: 2000000
+spring:
+  thymeleaf:
+    suffix: .html
+    mode: LEGACYHTML5
+    encoding: utf-8
+    cache: false
+
+  devtools:
+    restart:
+      enabled: true
+
+  # mysql数据库连接配置
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://106.13.73.189:3306/hongh?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC
+    username: shop
+    password: Shop@#123.
+  jpa:
+    show-sql: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties:
+      hibernate:
+#        format_sql: true
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password:
+    jedis:
+      pool:
+        # 最大连接数
+        max-active: 8
+        # 最大空闲数
+        max-idle: 8
+        # 最小空闲数
+        min-idle: 0
+        max-wait: -1ms
+    timeout: 2000ms
+# JWT相关配置
+jwt:
+  header: Authorization
+  # 过期时间
+  expiration: 864000
+  # 注意有一个空格
+  tokenHead: Bearer
+
+  # wechat Auth
+auth:
+  wechat:
+    sessionHost: https://api.weixin.qq.com/sns/jscode2session
+    appId: wx0573f0ca158560ca
+    secret: 9de8ffc5f90bc4c3a80d7ec70030f6ce
+    grantType: authorization_code
+    url:
