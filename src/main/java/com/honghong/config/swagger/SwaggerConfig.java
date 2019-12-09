@@ -75,5 +75,4 @@ public class SwaggerConfig {
         securityReferences.add(new SecurityReference("token", authorizationScopes));
         return securityReferences;
     }
-
 }
