@@ -26,6 +26,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addInterceptors(InterceptorRegistry registry) {
         logger.info("执行InterceptorRegistry");
         registry.addInterceptor(resourceInterceptor);
-//        registry.addInterceptor(authorizationInterceptor);
+        registry.addInterceptor(authorizationInterceptor);
     }
 }
