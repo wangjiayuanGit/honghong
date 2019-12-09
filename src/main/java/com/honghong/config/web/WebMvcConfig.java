@@ -19,8 +19,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private ResourceInterceptor resourceInterceptor;
-//    @Autowired
-//    private AuthorizationInterceptor authorizationInterceptor;
+    @Autowired
+    private AuthorizationInterceptor authorizationInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
