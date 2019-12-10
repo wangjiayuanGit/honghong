@@ -1,5 +1,6 @@
 package com.honghong.control;
 
+import com.honghong.common.Login;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -12,7 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public class IndexController {
     @RequestMapping("/")
-    public String index() {
+    public String login() {
         return "forward:/login.html";
+    }
+
+    @RequestMapping("/index")
+    public String index() {
+        return "forward:/templates/index.html";
     }
 }

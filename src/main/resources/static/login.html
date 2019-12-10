@@ -55,7 +55,7 @@
     //         return false
     //     }
     // })
-	var cxtPath = "https://localhost:8088"
+	var cxtPath = "https://127.0.0.1:8088"
 	// var cxtPath = "https://106.13.73.189:8088"
 	function login() {
         let username = $("#username").val();
@@ -73,7 +73,9 @@
         formdata.append("password",password)
         sendAjax("/admin/login","post",formdata,function (data) {
 			if (data.code===200){
-				window.location=cxtPath+"/templates/index.html"
+			    localStorage.setItem("token",data.data.token)
+				// window.location=cxtPath+"/templates/index.html"
+				window.location=cxtPath+"/index"
 			}else {
                 alert(data.msg)
 			}

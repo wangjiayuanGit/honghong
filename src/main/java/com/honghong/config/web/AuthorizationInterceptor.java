@@ -8,6 +8,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 /**
  * @author ：wangjy
@@ -38,7 +39,15 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         // 如果还是没有token,则抛异常
         if (StringUtils.isBlank(token)) {
             throw new RuntimeException("请登录后再试！");
+        }else {
+            if (Objects.equals("null",token)){
+                throw new RuntimeException("请登录后再试！");
+            }
         }
-        return false;
+//        long time = Long.parseLong(token);
+//        if (System.currentTimeMillis()>time){
+//            throw new RuntimeException("请登录已过期！");
+//        }
+        return true;
     }
 }
