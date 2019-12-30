@@ -15,7 +15,7 @@ public class AppearanceRate {
     private static final int TWO_DAYS = 48;
 
     /**
-     * @param list 原始数据集合
+     * @param list 原始数据集合(老数据的集合)
      * @param num  返回集合元素数量
      * @return 返回集合
      */
@@ -47,6 +47,21 @@ public class AppearanceRate {
             resultTopicDOS.add(list.get(i));
         }
         return resultTopicDOS;
+    }
+
+    /**
+     * @param list 原始数据集合(新数据的集合)
+     * @return topicDOS 原数据中随机的10%
+     */
+    public static List<TopicDO> getList(List<TopicDO> list) {
+        List<TopicDO> topicDOS = new ArrayList<>();
+        int size = (int) (list.size() * 0.1);
+        for (int i = 0; i < size; i++) {
+            Random random = new Random();
+            int n = random.nextInt(list.size());
+            topicDOS.add(list.get(n));
+        }
+        return topicDOS;
     }
 
 }

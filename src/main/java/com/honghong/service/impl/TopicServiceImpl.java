@@ -1,7 +1,6 @@
 package com.honghong.service.impl;
 
 import com.honghong.common.ResponseData;
-import com.honghong.common.TopicType;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
@@ -46,7 +45,7 @@ public class TopicServiceImpl implements TopicService {
 //        } else {
 //            topicDO.setType(TopicType.OTHER);
 //        }
-        topicRepository.save(topicDO);
+        topicDO = topicRepository.save(topicDO);
         return ResultUtils.success(topicDO);
     }
 
@@ -204,6 +203,7 @@ public class TopicServiceImpl implements TopicService {
                 oldData.add(topicDO);
             }
         }
+        newData = AppearanceRate.getList(newData);
         oldData = DataUtils.dieOut(oldData);
         oldData = AppearanceRate.getList(oldData, 100);
         List<TopicDO> result = new ArrayList<>();
