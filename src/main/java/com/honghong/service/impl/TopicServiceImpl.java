@@ -116,63 +116,68 @@ public class TopicServiceImpl implements TopicService {
             return predicate;
         };
         Page<TopicDO> all = topicRepository.findAll(specification, page);
-        //TODO 如果自己的排名在前十，或者当天或者本月没有发布话题，不添加第十一行
+        map.put("all", all);
         int ranking = (pageUtils.getPage() - 1) * pageUtils.getSize();
-        boolean hasMe = false;
+//        boolean hasMe = false;
         for (int i = 0; i < all.getContent().size(); i++) {
             ranking++;
             all.getContent().get(i).setRanking(ranking);
-            if (userId.equals(all.getContent().get(i).getUser().getId())) {
-                hasMe = true;
-            }
+//            if (userId.equals(all.getContent().get(i).getUser().getId())) {
+//                hasMe = true;
+//            }
         }
-        map.put("all", all);
-        if (!hasMe) {
-            Specification<TopicDO> my = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
-                List<Predicate> predicates = new ArrayList<>();
-                Predicate[] arr = new Predicate[predicates.size()];
-                Predicate predicate = criteriaBuilder.conjunction();
-                if (dayOrMonth == 0) {
-                    predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
-                } else {
-                    predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
-                }
-                predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
-                UserDO userDO = new UserDO();
-                userDO.setId(userId);
-                predicates.add(criteriaBuilder.equal(root.get("user").as(UserDO.class), userDO));
-                predicates.add(predicate);
-                query.where(predicates.toArray(arr));
-                query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
-                return query.getRestriction();
-            };
-            List<TopicDO> myTopicList = topicRepository.findAll(my);
-            if (myTopicList.size() > 0) {
-                Specification<TopicDO> specification1 = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
-                    Predicate predicate = criteriaBuilder.conjunction();
-                    if (dayOrMonth == 0) {
-                        predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
-                    } else {
-                        predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
-                    }
-                    predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
-                    query.where(predicate);
-                    query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
-                    return query.getRestriction();
-                };
-                List<TopicDO> list = topicRepository.findAll(specification1);
-                int rankingAll = 0;
-                TopicDO myTopic = null;
-                for (TopicDO topicDO : list) {
-                    rankingAll++;
-                    topicDO.setRanking(rankingAll);
-                    if (userId.equals(topicDO.getUser().getId())) {
-                        myTopic = topicDO;
-                    }
-                }
-                map.put("myTopic", myTopic);
-            }
-        }
+        Page<TopicDO> createdAt = topicRepository.findAllByUserId(userId, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
+        TopicDO myTopic = createdAt.getContent().get(0);
+        map.put("myTopic", myTopic);
+        /**  2020 02/04 modify
+         *   不管前十的排行中有没有又自己的数据，都在添加一条自己发布的的数据（前提是有自己的数据）
+         *  if (!hasMe) {
+         Specification<TopicDO> my = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
+         List<Predicate> predicates = new ArrayList<>();
+         Predicate[] arr = new Predicate[predicates.size()];
+         Predicate predicate = criteriaBuilder.conjunction();
+         if (dayOrMonth == 0) {
+         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
+         } else {
+         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
+         }
+         predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
+         UserDO userDO = new UserDO();
+         userDO.setId(userId);
+         predicates.add(criteriaBuilder.equal(root.get("user").as(UserDO.class), userDO));
+         predicates.add(predicate);
+         query.where(predicates.toArray(arr));
+         query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
+         return query.getRestriction();
+         };
+         List<TopicDO> myTopicList = topicRepository.findAll(my);
+         if (myTopicList.size() > 0) {
+         Specification<TopicDO> specification1 = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
+         Predicate predicate = criteriaBuilder.conjunction();
+         if (dayOrMonth == 0) {
+         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
+         } else {
+         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
+         }
+         predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
+         query.where(predicate);
+         query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
+         return query.getRestriction();
+         };
+         List<TopicDO> list = topicRepository.findAll(specification1);
+         int rankingAll = 0;
+         TopicDO myTopic = null;
+         for (TopicDO topicDO : list) {
+         rankingAll++;
+         topicDO.setRanking(rankingAll);
+         if (userId.equals(topicDO.getUser().getId())) {
+         myTopic = topicDO;
+         }
+         }
+         map.put("myTopic", myTopic);
+         }
+         }
+         */
 
         return ResultUtils.success(map);
     }
