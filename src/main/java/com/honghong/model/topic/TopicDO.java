@@ -62,6 +62,8 @@ public class TopicDO {
 
     @Column(name = "state", columnDefinition = "int comment '状态'")
     private Integer state;
+    @Column(name = "nickname", columnDefinition = "varchar(30) comment '微信昵称'")
+    private String nickname;
 
     transient private Integer weight;
     transient private Double efficiency;
@@ -78,6 +80,7 @@ public class TopicDO {
         this.createdAt = new Date();
         this.updatedAt = new Date();
         this.state = 0;
+        this.nickname = this.user.getNickname();
     }
 
 

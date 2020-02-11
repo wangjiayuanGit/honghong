@@ -49,4 +49,10 @@ public class TopicController {
     public ResponseData leaderBoard(Long userId, Integer dayOrMonth, PageUtils pageUtils) {
         return topicService.leaderBoard(userId, dayOrMonth, pageUtils);
     }
+
+    @GetMapping("/search")
+    @ApiOperation("首页搜素")
+    public ResponseData search(String keyword, PageUtils pageUtils) {
+        return topicService.search(keyword, pageUtils);
+    }
 }

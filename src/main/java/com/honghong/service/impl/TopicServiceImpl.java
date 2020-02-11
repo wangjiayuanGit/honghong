@@ -5,6 +5,7 @@ import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
 import com.honghong.repository.TopicRepository;
+import com.honghong.repository.UserRepository;
 import com.honghong.service.TopicService;
 import com.honghong.util.AppearanceRate;
 import com.honghong.util.DataUtils;
@@ -30,11 +31,13 @@ import java.util.*;
 public class TopicServiceImpl implements TopicService {
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public ResponseData addTopic(TopicDTO topicDTO) {
-        UserDO userDO = new UserDO();
-        userDO.setId(topicDTO.getUserId());
+        Optional<UserDO> byId = userRepository.findById(topicDTO.getUserId());
+        UserDO userDO = byId.orElseThrow(() -> new RuntimeException("该用户不存在"));
         TopicDO topicDO = new TopicDO();
         topicDO.addTopic(topicDTO);
         topicDO.setUser(userDO);
@@ -54,11 +57,6 @@ public class TopicServiceImpl implements TopicService {
         Specification<TopicDO> specification = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             Predicate[] arr = new Predicate[predicates.size()];
-            if (StringUtils.isNotBlank(keyword)) {
-                Predicate predicate1 = criteriaBuilder.like(root.get("title"), "%" + keyword + "%");
-                Predicate predicate2 = criteriaBuilder.like(root.get("content"), "%" + keyword + "%");
-                predicates.add(criteriaBuilder.or(predicate1, predicate2));
-            }
             if (StringUtils.isNoneEmpty(city)) {
                 predicates.add(criteriaBuilder.like(root.get("city"), "%" + city + "%"));
             }
@@ -66,11 +64,9 @@ public class TopicServiceImpl implements TopicService {
             query.orderBy(criteriaBuilder.desc(root.get("createdAt")));
             return query.getRestriction();
         };
-        pageUtils.setSize(1000);
-        PageRequest page = pageUtils.getPageRequest();
-        Page<TopicDO> list = topicRepository.findAll(specification, page);
-        List<TopicDO> content = list.getContent();
-        List<TopicDO> result = getList(content);
+
+        List<TopicDO> list = topicRepository.findAll(specification);
+        List<TopicDO> result = getList(list);
         return ResultUtils.success(DataUtils.randomList(result));
     }
 
@@ -89,96 +85,31 @@ public class TopicServiceImpl implements TopicService {
         if (dayOrMonth == null || userId == null) {
             return ResultUtils.paramError();
         }
-        //返回数据
         Map<String, Object> map = new HashMap<>();
-        Date now = new Date();
-        //过去一天的时间
-        Calendar day = Calendar.getInstance();
-        day.setTime(new Date());
-        day.add(Calendar.HOUR, -24);
-        Date oneDay = day.getTime();
-        //过去一个月的时间
-        Calendar month = Calendar.getInstance();
-        month.setTime(new Date());
-        month.add(Calendar.MONTH, -1);
-        Date oneMonth = month.getTime();
-
-        Sort sort = new Sort(Sort.Direction.DESC, "likeSum");
-        PageRequest page = pageUtils.getSortPageRequest(sort);
-        Specification<TopicDO> specification = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
-            if (dayOrMonth == 0) {
-                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
-            } else {
-                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
-            }
-            predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
-            return predicate;
-        };
-        Page<TopicDO> all = topicRepository.findAll(specification, page);
+        Specification<TopicDO> specificationAll = specificationBuild(null, dayOrMonth, true);
+        Page<TopicDO> all = topicRepository.findAll(specificationAll, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
         map.put("all", all);
         int ranking = (pageUtils.getPage() - 1) * pageUtils.getSize();
-//        boolean hasMe = false;
         for (int i = 0; i < all.getContent().size(); i++) {
             ranking++;
             all.getContent().get(i).setRanking(ranking);
-//            if (userId.equals(all.getContent().get(i).getUser().getId())) {
-//                hasMe = true;
-//            }
         }
-        Page<TopicDO> createdAt = topicRepository.findAllByUserId(userId, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
-        TopicDO myTopic = createdAt.getContent().get(0);
+        Specification<TopicDO> specificationMy = specificationBuild(userId, dayOrMonth, false);
+        List<TopicDO> createdAt = topicRepository.findAll(specificationMy, new Sort(Sort.Direction.DESC, "createdAt"));
+        TopicDO myTopic = null;
+        if (createdAt != null && createdAt.size() >= 1) {
+            myTopic = createdAt.get(0);
+            Specification<TopicDO> serviceSpecification = specificationBuild(null, dayOrMonth, true);
+            List<TopicDO> list = topicRepository.findAll(serviceSpecification, new Sort(Sort.Direction.DESC, "createdAt"));
+            int rankingAll = 0;
+            for (TopicDO topicDO : list) {
+                rankingAll++;
+                if (myTopic.getId().equals(topicDO.getId())) {
+                    myTopic.setRanking(rankingAll);
+                }
+            }
+        }
         map.put("myTopic", myTopic);
-        /**  2020 02/04 modify
-         *   不管前十的排行中有没有又自己的数据，都在添加一条自己发布的的数据（前提是有自己的数据）
-         *  if (!hasMe) {
-         Specification<TopicDO> my = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
-         List<Predicate> predicates = new ArrayList<>();
-         Predicate[] arr = new Predicate[predicates.size()];
-         Predicate predicate = criteriaBuilder.conjunction();
-         if (dayOrMonth == 0) {
-         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
-         } else {
-         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
-         }
-         predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
-         UserDO userDO = new UserDO();
-         userDO.setId(userId);
-         predicates.add(criteriaBuilder.equal(root.get("user").as(UserDO.class), userDO));
-         predicates.add(predicate);
-         query.where(predicates.toArray(arr));
-         query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
-         return query.getRestriction();
-         };
-         List<TopicDO> myTopicList = topicRepository.findAll(my);
-         if (myTopicList.size() > 0) {
-         Specification<TopicDO> specification1 = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
-         Predicate predicate = criteriaBuilder.conjunction();
-         if (dayOrMonth == 0) {
-         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
-         } else {
-         predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
-         }
-         predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
-         query.where(predicate);
-         query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
-         return query.getRestriction();
-         };
-         List<TopicDO> list = topicRepository.findAll(specification1);
-         int rankingAll = 0;
-         TopicDO myTopic = null;
-         for (TopicDO topicDO : list) {
-         rankingAll++;
-         topicDO.setRanking(rankingAll);
-         if (userId.equals(topicDO.getUser().getId())) {
-         myTopic = topicDO;
-         }
-         }
-         map.put("myTopic", myTopic);
-         }
-         }
-         */
-
         return ResultUtils.success(map);
     }
 
@@ -194,6 +125,24 @@ public class TopicServiceImpl implements TopicService {
             topicDO.setRankingOfTheDay(index++);
         }
         topicRepository.saveAll(topicDOS);
+    }
+
+    @Override
+    public ResponseData search(String keyword, PageUtils pageUtils) {
+        Specification<TopicDO> specification = (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            Predicate[] arr = new Predicate[predicates.size()];
+            if (StringUtils.isNotBlank(keyword)) {
+                Predicate predicate1 = criteriaBuilder.like(root.get("nickname"), "%" + keyword + "%");
+                Predicate predicate2 = criteriaBuilder.like(root.get("content"), "%" + keyword + "%");
+                predicates.add(criteriaBuilder.or(predicate1, predicate2));
+            }
+            query.where(predicates.toArray(arr));
+            query.orderBy(criteriaBuilder.desc(root.get("createdAt")));
+            return query.getRestriction();
+        };
+        Page<TopicDO> page = topicRepository.findAll(specification, pageUtils.getPageRequest());
+        return ResultUtils.success(page);
     }
 
     private List<TopicDO> getList(List<TopicDO> list) {
@@ -214,6 +163,42 @@ public class TopicServiceImpl implements TopicService {
         List<TopicDO> result = new ArrayList<>();
         result.addAll(newData);
         result.addAll(oldData);
-        return result;
+        return AppearanceRate.getResult(result, 3);
+    }
+
+    private Specification<TopicDO> specificationBuild(Long userId, Integer dayOrMonth, boolean needToSort) {
+        Date now = new Date();
+        //过去一天的时间
+        Calendar day = Calendar.getInstance();
+        day.setTime(new Date());
+        day.add(Calendar.HOUR, -24);
+        Date oneDay = day.getTime();
+        //过去一个月的时间
+        Calendar month = Calendar.getInstance();
+        month.setTime(new Date());
+        month.add(Calendar.MONTH, -1);
+        Date oneMonth = month.getTime();
+        return (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            Predicate[] arr = new Predicate[predicates.size()];
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (dayOrMonth == 0) {
+                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
+            } else {
+                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
+            }
+            predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
+            if (userId != null) {
+                UserDO userDO = new UserDO();
+                userDO.setId(userId);
+                predicates.add(criteriaBuilder.equal(root.get("user").as(UserDO.class), userDO));
+            }
+            predicates.add(predicate);
+            query.where(predicates.toArray(arr));
+            if (needToSort) {
+                query.orderBy(criteriaBuilder.desc(root.get("likeSum")));
+            }
+            return query.getRestriction();
+        };
     }
 }

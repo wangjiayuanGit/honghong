@@ -1,6 +1,7 @@
 package com.honghong.util;
 
 import com.honghong.model.topic.TopicDO;
+import com.honghong.quartz.TodayJob;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,4 +65,17 @@ public class AppearanceRate {
         return topicDOS;
     }
 
+    public static List<TopicDO> getResult(List<TopicDO> list, int num) {
+        List<TopicDO> result = new ArrayList<>();
+        if (list.size() <= num) {
+            return list;
+        }
+
+        for (int i = 0; i < num; i++) {
+            Random random = new Random();
+            int n = random.nextInt(list.size() - 1);
+            result.add(list.get(n));
+        }
+        return result;
+    }
 }

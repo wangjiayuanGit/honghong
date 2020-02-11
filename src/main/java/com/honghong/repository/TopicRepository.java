@@ -24,11 +24,11 @@ public interface TopicRepository extends JpaRepository<TopicDO, Long>, JpaSpecif
 
     /**
      * 真实数据的数量
+     *
      * @param truth
      * @param start
      * @param end
      * @return
      */
-    Integer countByTruthAndCreatedAtAfterAndCreatedAtBefore(Boolean truth, Date start,Date end);
-
+    Integer countByTruthAndCreatedAtAfterAndCreatedAtBefore(Boolean truth, Date start, Date end);
 }

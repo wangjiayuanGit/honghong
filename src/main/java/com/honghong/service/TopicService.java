@@ -45,10 +45,19 @@ public interface TopicService {
      * @param pageUtils
      * @return
      */
-    ResponseData leaderBoard(Long userId,Integer dayOrMonth, PageUtils pageUtils);
+    ResponseData leaderBoard(Long userId, Integer dayOrMonth, PageUtils pageUtils);
 
     /**
      * 排名
      */
     void ranking();
+
+    /**
+     * 根据关键字搜素
+     *
+     * @param keyword
+     * @param pageUtils
+     * @return
+     */
+    ResponseData search(String keyword, PageUtils pageUtils);
 }
