@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
  * @author wangjy
  * @date 2018/12/5 0005 10:50
  */
-//@Component
-//@EnableScheduling
+@Component
+@EnableScheduling
 public class TodayJob implements ApplicationRunner {
     @Autowired
     private TopicService topicService;

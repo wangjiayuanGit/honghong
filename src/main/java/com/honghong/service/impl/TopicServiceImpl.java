@@ -39,8 +39,8 @@ public class TopicServiceImpl implements TopicService {
         Optional<UserDO> byId = userRepository.findById(topicDTO.getUserId());
         UserDO userDO = byId.orElseThrow(() -> new RuntimeException("该用户不存在"));
         TopicDO topicDO = new TopicDO();
-        topicDO.addTopic(topicDTO);
         topicDO.setUser(userDO);
+        topicDO.addTopic(topicDTO);
 //        if ("#".startsWith(topicDTO.getTitle())) {
 //            topicDO.setType(TopicType.DEMANDS);
 //        } else if ("*".startsWith(topicDTO.getTitle())) {

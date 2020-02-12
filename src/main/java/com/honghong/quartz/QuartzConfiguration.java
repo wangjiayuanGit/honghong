@@ -14,7 +14,7 @@ import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
  * @date 2018/12/5 0005 19:08
  */
 
-//@Configuration
+@Configuration
 public class QuartzConfiguration {
 
     /**
