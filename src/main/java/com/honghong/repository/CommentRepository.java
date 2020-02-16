@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author ：wangjy
  * @description ：评论
@@ -24,4 +26,13 @@ public interface CommentRepository extends JpaRepository<CommentDO, Long> {
     Page<CommentDO> findAllByOwnerIdAndTypeAndStateIsNot(Long ownerId, CommentType type, Integer state, Pageable pageable);
 
     Page<CommentDO> findAllByTopicIdAndStateIsNot(Long topicId, Integer state, Pageable pageable);
+
+    /**
+     * 查询未读消息数量
+     *
+     * @param topicIds
+     * @param isRead
+     * @return
+     */
+    Integer countByTopicIdInAndIsReadIs(List<Long> topicIds, Boolean isRead);
 }

@@ -4,6 +4,7 @@ import com.honghong.common.ResponseData;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
+import com.honghong.repository.CommentRepository;
 import com.honghong.repository.TopicRepository;
 import com.honghong.repository.UserRepository;
 import com.honghong.service.TopicService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.*;
@@ -33,7 +35,8 @@ public class TopicServiceImpl implements TopicService {
     private TopicRepository topicRepository;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private CommentRepository commentRepository;
     @Override
     public ResponseData addTopic(TopicDTO topicDTO) {
         Optional<UserDO> byId = userRepository.findById(topicDTO.getUserId());
@@ -50,6 +53,15 @@ public class TopicServiceImpl implements TopicService {
 //        }
         topicDO = topicRepository.save(topicDO);
         return ResultUtils.success(topicDO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseData delTopic(Long topicId) {
+        Optional<TopicDO> byId = topicRepository.findById(topicId);
+        TopicDO topicDO = byId.orElseThrow(() -> new RuntimeException("该topic不存在"));
+        topicRepository.delete(topicDO);
+        return ResultUtils.success();
     }
 
     @Override
@@ -75,9 +87,18 @@ public class TopicServiceImpl implements TopicService {
         if (userId == null) {
             return ResultUtils.paramError();
         }
+        Map<String, Object> map = new HashMap<>();
         PageRequest page = pageUtils.getPageRequest();
         Page<TopicDO> topicDOS = topicRepository.findAllByUserId(userId, page);
-        return ResultUtils.success(topicDOS);
+        List<TopicDO> list = topicDOS.getContent();
+        List<Long> topicIds = new ArrayList<>();
+        for (TopicDO topic : list) {
+            topicIds.add(topic.getId());
+        }
+        Integer unreadMessage = commentRepository.countByTopicIdInAndIsReadIs(topicIds, false);
+        map.put("topicDOS", topicDOS);
+        map.put("unreadMessage", unreadMessage);
+        return ResultUtils.success(map);
     }
 
     @Override
@@ -143,6 +164,12 @@ public class TopicServiceImpl implements TopicService {
         };
         Page<TopicDO> page = topicRepository.findAll(specification, pageUtils.getPageRequest());
         return ResultUtils.success(page);
+    }
+
+    @Override
+    public ResponseData detail(Long id) {
+        Optional<TopicDO> byId = topicRepository.findById(id);
+        return byId.map(ResultUtils::success).orElseGet(ResultUtils::dataNull);
     }
 
     private List<TopicDO> getList(List<TopicDO> list) {

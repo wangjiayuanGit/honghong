@@ -51,6 +51,14 @@ public class WechatServiceImpl implements WechatService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+
+    public ResponseData getUserInfo(String code) {
+        WechatAuthCodeResponse wechatAuthCodeResponse = getWxSession(code);
+        String openId = wechatAuthCodeResponse.getOpenid();
+        UserDO userDO = userRepository.findByWechatOpenid(openId);
+        return ResultUtils.success(userDO);
+    }
+
     public ResponseData weChatLogin(AccountDTO accountDto) {
         WechatAuthCodeResponse response = getWxSession(accountDto.getCode());
         Map<String, Object> map = new HashMap<>();

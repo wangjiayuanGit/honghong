@@ -19,6 +19,14 @@ public interface TopicService {
     ResponseData addTopic(TopicDTO topicDTO);
 
     /**
+     * 删除
+     *
+     * @param topicId
+     * @return
+     */
+    ResponseData delTopic(Long topicId);
+
+    /**
      * 列表
      *
      * @param keyword   关键字
@@ -60,4 +68,12 @@ public interface TopicService {
      * @return
      */
     ResponseData search(String keyword, PageUtils pageUtils);
+
+    /**
+     * 话题详情
+     *
+     * @param id
+     * @return
+     */
+    ResponseData detail(Long id);
 }

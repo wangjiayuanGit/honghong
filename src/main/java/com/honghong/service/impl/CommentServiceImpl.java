@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,6 +45,7 @@ public class CommentServiceImpl implements CommentService {
         commentDO.setCreatedAt(new Date());
         commentDO.setUpdatedAt(new Date());
         commentDO.setState(0);
+        commentDO.setIsRead(false);
         if (CommentType.TOPIC_COMMENT.equals(commentDTO.getType())) {
             Optional<TopicDO> byId = topicRepository.findById(commentDO.getOwnerId());
             if (byId.isPresent()) {
@@ -81,6 +83,11 @@ public class CommentServiceImpl implements CommentService {
         }
         PageRequest pageRequest = pageUtils.getPageRequest();
         Page<CommentDO> all = commentRepository.findAllByTopicIdAndStateIsNot(topicId, -1, pageRequest);
+        List<CommentDO> list = all.getContent();
+        for (CommentDO commentDO : list) {
+            commentDO.setIsRead(true);
+        }
+        commentRepository.saveAll(list);
         return ResultUtils.success(all);
 
     }

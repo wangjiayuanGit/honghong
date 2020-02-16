@@ -51,5 +51,7 @@ public class CommentDO {
     @Column(name = "state", columnDefinition = "int comment '状态'")
     private Integer state;
 
+    @Column(name = "is_read",columnDefinition = "boolean comment '是否已读'")
+    private Boolean isRead;
 
 }

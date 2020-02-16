@@ -32,6 +32,12 @@ public class TopicController {
         return topicService.addTopic(topicDTO);
     }
 
+    @PostMapping("/del")
+    @ApiOperation("/删除")
+    public ResponseData delTopic(Long topicId) {
+        return topicService.delTopic(topicId);
+    }
+
     @PostMapping("topicList")
     @ApiOperation("话题列表")
     public ResponseData topicList(String keyword, String city, PageUtils pageUtils) {
@@ -54,5 +60,11 @@ public class TopicController {
     @ApiOperation("首页搜素")
     public ResponseData search(String keyword, PageUtils pageUtils) {
         return topicService.search(keyword, pageUtils);
+    }
+
+    @GetMapping("/detail")
+    @ApiOperation("话题详细信息")
+    public ResponseData detail(Long id) {
+        return topicService.detail(id);
     }
 }

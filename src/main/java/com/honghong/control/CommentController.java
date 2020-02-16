@@ -22,7 +22,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/comment")
 @Api(description = "评论")
-public class CommentController {
+public class  CommentController {
     @Autowired
     private CommentService commentService;
 
