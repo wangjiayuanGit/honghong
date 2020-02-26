@@ -88,7 +88,7 @@ public class TopicServiceImpl implements TopicService {
             return ResultUtils.paramError();
         }
         Map<String, Object> map = new HashMap<>();
-        PageRequest page = pageUtils.getPageRequest();
+        PageRequest page = pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC,"createdAt"));
         Page<TopicDO> topicDOS = topicRepository.findAllByUserId(userId, page);
         List<TopicDO> list = topicDOS.getContent();
         List<Long> topicIds = new ArrayList<>();

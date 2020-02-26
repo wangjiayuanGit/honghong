@@ -30,7 +30,7 @@ public class LikeController {
 
     @GetMapping("/list")
     @ApiOperation("点赞列表")
-    public ResponseData likeList(Long topicId) {
-        return likeService.likeList(topicId);
+    public ResponseData likeList(Long userId) {
+        return likeService.likeList(userId);
     }
 }

@@ -20,8 +20,8 @@ public interface LikeService {
 
     /**
      * 我的点赞列表
-     * @param topicId
+     * @param userId
      * @return
      */
-    ResponseData likeList(Long topicId);
+    ResponseData likeList(Long userId);
 }
