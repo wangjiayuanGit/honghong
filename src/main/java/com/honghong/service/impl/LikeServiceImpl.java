@@ -8,6 +8,7 @@ import com.honghong.model.topic.TopicDO;
 import com.honghong.model.user.UserDO;
 import com.honghong.repository.LikeRepository;
 import com.honghong.repository.TopicRepository;
+import com.honghong.repository.UserRepository;
 import com.honghong.service.LikeService;
 import com.honghong.util.BeanMapUtils;
 import com.honghong.util.JsonUtils;
@@ -28,14 +29,16 @@ public class LikeServiceImpl implements LikeService {
     private LikeRepository likeRepository;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public ResponseData like(Long topicId, Long userId, Integer num) {
         if (topicId == null || userId == null || num == null) {
             return ResultUtils.paramError();
         }
-        UserDO userDO = new UserDO();
-        userDO.setId(userId);
+        Optional<UserDO> optional = userRepository.findById(userId);
+        UserDO userDO = optional.orElseThrow(() -> new RuntimeException("用户数据不存在"));
         LikeDO likeDO = new LikeDO();
         likeDO.setTopicId(topicId);
         likeDO.setUser(userDO);
@@ -49,7 +52,10 @@ public class LikeServiceImpl implements LikeService {
         }
         TopicDO topicDO = byId.get();
         Integer sum = topicDO.getLikeSum() + num;
+        Integer likeUserNum = topicDO.getLikeUserNum();
         topicDO.setLikeSum(sum);
+        topicDO.setLikeUserNum(++likeUserNum);
+        topicDO.setLastLikeUser(userDO.getNickname());
         topicDO.setUpdatedAt(new Date());
         topicRepository.save(topicDO);
         likeRepository.save(likeDO);

@@ -64,6 +64,10 @@ public class TopicDO {
     private Integer state;
     @Column(name = "nickname", columnDefinition = "varchar(30) comment '微信昵称'")
     private String nickname;
+    @Column(name = "like_user_num", columnDefinition = "int comment '点赞人数'")
+    private Integer likeUserNum;
+    @Column(name = "last_like_user", columnDefinition = "varchar (50) comment '最后点赞人的昵称'")
+    private String lastLikeUser;
 
     transient private Integer weight;
     transient private Double efficiency;
@@ -81,6 +85,7 @@ public class TopicDO {
         this.updatedAt = new Date();
         this.state = 0;
         this.nickname = this.user.getNickname();
+        this.likeUserNum = 0;
     }
 
 

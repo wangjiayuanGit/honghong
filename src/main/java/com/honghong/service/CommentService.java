@@ -29,9 +29,9 @@ public interface CommentService {
     /**
      * 评论列表
      *
-     * @param topicId
+     * @param userId
      * @param pageUtils
      * @return
      */
-    ResponseData list(Long topicId, PageUtils pageUtils);
+    ResponseData list(Long userId, PageUtils pageUtils);
 }

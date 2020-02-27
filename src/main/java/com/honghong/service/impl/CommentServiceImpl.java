@@ -4,18 +4,21 @@ import com.honghong.common.CommentType;
 import com.honghong.common.ResponseData;
 import com.honghong.model.topic.CommentDO;
 import com.honghong.model.topic.CommentDTO;
+import com.honghong.model.topic.CommentResult;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.user.UserDO;
 import com.honghong.repository.CommentRepository;
+import com.honghong.repository.LikeRepository;
 import com.honghong.repository.TopicRepository;
 import com.honghong.service.CommentService;
 import com.honghong.util.PageUtils;
 import com.honghong.util.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,8 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
     @Autowired
     private TopicRepository topicRepository;
+    @Autowired
+    private LikeRepository likeRepository;
 
     @Override
     public ResponseData addComment(CommentDTO commentDTO) {
@@ -73,22 +78,36 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseData list(Long topicId, PageUtils pageUtils) {
-        if (topicId == null) {
+    public ResponseData list(Long userId, PageUtils pageUtils) {
+        if (userId == null) {
             return ResultUtils.paramError();
         }
-        Optional<TopicDO> byId = topicRepository.findById(topicId);
-        if (!byId.isPresent()) {
-            throw new RuntimeException("数据异常");
+
+        Page<TopicDO> page = topicRepository.findAllByUserId(userId, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
+        List<TopicDO> topicDOS = page.getContent();
+        List<Long> topicIds = new ArrayList<>();
+        for (TopicDO topicDO : topicDOS) {
+            topicIds.add(topicDO.getId());
         }
-        PageRequest pageRequest = pageUtils.getPageRequest();
-        Page<CommentDO> all = commentRepository.findAllByTopicIdAndStateIsNot(topicId, -1, pageRequest);
-        List<CommentDO> list = all.getContent();
-        for (CommentDO commentDO : list) {
+        List<CommentDO> all = commentRepository.findAllByTopicIdIn(topicIds);
+        List<CommentResult> commentResults = new ArrayList<>();
+        for (TopicDO topicDO : topicDOS) {
+            List<CommentDO> commentDOS = new ArrayList<>();
+            CommentResult commentResult = null;
+            for (CommentDO commentDO : all) {
+                if (commentDO.getTopicId().equals(topicDO.getId())) {
+                    commentDOS.add(commentDO);
+                }
+            }
+            commentResult = new CommentResult(commentDOS, topicDO);
+            commentResults.add(commentResult);
+        }
+
+        for (CommentDO commentDO : all) {
             commentDO.setIsRead(true);
         }
-        commentRepository.saveAll(list);
-        return ResultUtils.success(all);
+        commentRepository.saveAll(all);
+        return ResultUtils.success(commentResults);
 
     }
 }
