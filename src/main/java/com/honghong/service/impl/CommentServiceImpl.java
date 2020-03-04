@@ -17,11 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author ：wangjy
@@ -51,15 +49,21 @@ public class CommentServiceImpl implements CommentService {
         commentDO.setUpdatedAt(new Date());
         commentDO.setState(0);
         commentDO.setIsRead(false);
+        commentDO = commentRepository.save(commentDO);
+        List<CommentDO> allByTopicIdAndTypeIs = commentRepository.findAllByTopicIdAndTypeIs(commentDTO.getTopicId(), CommentType.TOPIC_COMMENT);
+        Set<UserDO> userDOS= new HashSet<>();
+        for (CommentDO commentDO1 : allByTopicIdAndTypeIs) {
+            userDOS.add(commentDO1.getUser());
+        }
         if (CommentType.TOPIC_COMMENT.equals(commentDTO.getType())) {
             Optional<TopicDO> byId = topicRepository.findById(commentDO.getOwnerId());
-            if (byId.isPresent()) {
-                TopicDO topicDO = byId.get();
-                topicDO.setCommentSum(topicDO.getLikeSum() + 1);
-                topicRepository.saveAndFlush(topicDO);
-            }
+            TopicDO topicDO = byId.orElseThrow(() -> new RuntimeException("数据异常"));
+            topicDO.setCommentSum(topicDO.getLikeSum() + 1);
+            topicDO.setLastCommentUser(userDO.getNickname());
+            topicDO.setCommentUserNum(userDOS.size());
+            topicRepository.saveAndFlush(topicDO);
         }
-        commentRepository.save(commentDO);
+
         return ResultUtils.success(commentDO);
     }
 
@@ -99,7 +103,9 @@ public class CommentServiceImpl implements CommentService {
                     commentDOS.add(commentDO);
                 }
             }
-            commentResult = new CommentResult(commentDOS, topicDO);
+            if (commentDOS == null || commentDOS.size() <= 0) {
+                commentResult = new CommentResult(commentDOS, topicDO);
+            }
             commentResults.add(commentResult);
         }
 

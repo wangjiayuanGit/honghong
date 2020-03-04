@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 
@@ -31,4 +33,9 @@ public interface TopicRepository extends JpaRepository<TopicDO, Long>, JpaSpecif
      * @return
      */
     Integer countByTruthAndCreatedAtAfterAndCreatedAtBefore(Boolean truth, Date start, Date end);
+
+
+    @Modifying
+    @Query(value = "update tb_topic set ranking_of_the_day =0",nativeQuery = true)
+    void updateRanking();
 }

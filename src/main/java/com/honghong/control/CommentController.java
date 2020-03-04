@@ -40,7 +40,7 @@ public class  CommentController {
 
     @GetMapping("/list")
     @ApiOperation("评论列表")
-    public ResponseData list(Long topicId, PageUtils pageUtils) {
-        return commentService.list(topicId, pageUtils);
+    public ResponseData list(Long userId, PageUtils pageUtils) {
+        return commentService.list(userId, pageUtils);
     }
 }

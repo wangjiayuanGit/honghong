@@ -49,7 +49,7 @@ public class TopicDO {
     @Column(name = "comment_sum", columnDefinition = "int comment '评论数量'")
     private Integer commentSum;
 
-    @Column(name = "ranking_or_the_day", columnDefinition = "int comment '当天点赞排名'")
+    @Column(name = "ranking_of_the_day", columnDefinition = "int comment '当天点赞排名'")
     private Integer rankingOfTheDay;
 
     @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss", timezone = "GMT+8")
@@ -64,10 +64,10 @@ public class TopicDO {
     private Integer state;
     @Column(name = "nickname", columnDefinition = "varchar(30) comment '微信昵称'")
     private String nickname;
-    @Column(name = "like_user_num", columnDefinition = "int comment '点赞人数'")
-    private Integer likeUserNum;
-    @Column(name = "last_like_user", columnDefinition = "varchar (50) comment '最后点赞人的昵称'")
-    private String lastLikeUser;
+    @Column(name = "comment_user_num", columnDefinition = "int comment '点赞人数'")
+    private Integer commentUserNum;
+    @Column(name = "comment_comment_user", columnDefinition = "varchar (50) comment '最后点赞人的昵称'")
+    private String lastCommentUser;
 
     transient private Integer weight;
     transient private Double efficiency;
@@ -85,7 +85,7 @@ public class TopicDO {
         this.updatedAt = new Date();
         this.state = 0;
         this.nickname = this.user.getNickname();
-        this.likeUserNum = 0;
+        this.commentUserNum = 0;
     }
 
 

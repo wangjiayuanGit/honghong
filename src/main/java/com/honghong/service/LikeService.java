@@ -1,6 +1,7 @@
 package com.honghong.service;
 
 import com.honghong.common.ResponseData;
+import com.honghong.util.PageUtils;
 
 /**
  * @author ：wangjy
@@ -20,8 +21,10 @@ public interface LikeService {
 
     /**
      * 我的点赞列表
+     *
      * @param userId
+     * @param pageUtils
      * @return
      */
-    ResponseData likeList(Long userId);
+    ResponseData likeList(Long userId, PageUtils pageUtils);
 }

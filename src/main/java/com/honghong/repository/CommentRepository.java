@@ -5,7 +5,6 @@ import com.honghong.model.topic.CommentDO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -34,7 +33,18 @@ public interface CommentRepository extends JpaRepository<CommentDO, Long> {
      * @param topicIds
      * @return
      */
-        List<CommentDO> findAllByTopicIdIn(List<Long> topicIds);
+    List<CommentDO> findAllByTopicIdIn(List<Long> topicIds);
+
+    /**
+     * 根据话题ID查询
+     * @param topicId
+     * @return
+     */
+    List<CommentDO> findAllByTopicId(Long topicId);
+
+    List<CommentDO> findAllByTopicIdAndTypeIs(Long topicId,CommentType commentType);
+
+
     /**
      * 查询未读消息数量
      *

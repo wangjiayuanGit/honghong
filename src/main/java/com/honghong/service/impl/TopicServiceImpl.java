@@ -1,6 +1,7 @@
 package com.honghong.service.impl;
 
 import com.honghong.common.ResponseData;
+import com.honghong.model.topic.CommentDO;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
@@ -21,7 +22,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.*;
 
 /**
@@ -107,21 +111,27 @@ public class TopicServiceImpl implements TopicService {
             return ResultUtils.paramError();
         }
         Map<String, Object> map = new HashMap<>();
+        //先找出排行榜列表
         Specification<TopicDO> specificationAll = specificationBuild(null, dayOrMonth, true);
-        Page<TopicDO> all = topicRepository.findAll(specificationAll, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
+//        Page<TopicDO> all = topicRepository.findAll(specificationAll, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
+        Page<TopicDO> all = topicRepository.findAll(specificationAll, pageUtils.getPageRequest());
         map.put("all", all);
         int ranking = (pageUtils.getPage() - 1) * pageUtils.getSize();
         for (int i = 0; i < all.getContent().size(); i++) {
             ranking++;
             all.getContent().get(i).setRanking(ranking);
         }
+        //找到自己的topic列表
         Specification<TopicDO> specificationMy = specificationBuild(userId, dayOrMonth, false);
         List<TopicDO> createdAt = topicRepository.findAll(specificationMy, new Sort(Sort.Direction.DESC, "createdAt"));
         TopicDO myTopic = null;
+        //如果自己发布的有topic数据（必须是当天或者当月的数据），设置排名
         if (createdAt != null && createdAt.size() >= 1) {
             myTopic = createdAt.get(0);
+            //设置排名
             Specification<TopicDO> serviceSpecification = specificationBuild(null, dayOrMonth, true);
-            List<TopicDO> list = topicRepository.findAll(serviceSpecification, new Sort(Sort.Direction.DESC, "createdAt"));
+//            List<TopicDO> list = topicRepository.findAll(serviceSpecification, new Sort(Sort.Direction.DESC, "createdAt"));
+            List<TopicDO> list = topicRepository.findAll(serviceSpecification);
             int rankingAll = 0;
             for (TopicDO topicDO : list) {
                 rankingAll++;
@@ -137,9 +147,8 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void ranking() {
         PageUtils pageUtils = new PageUtils();
-        Sort sort = new Sort(Sort.Direction.DESC, "likeSum");
-        PageRequest page = pageUtils.getSortPageRequest(sort);
-        Page<TopicDO> doPage = topicRepository.findAll(page);
+        Specification<TopicDO> specification = specificationBuild(null, 0, true);
+        Page<TopicDO> doPage = topicRepository.findAll(specification,pageUtils.getPageRequest());
         List<TopicDO> topicDOS = doPage.getContent();
         int index = 1;
         for (TopicDO topicDO : topicDOS) {
@@ -168,10 +177,21 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public ResponseData detail(Long id) {
+        Map<String, Object> map = new HashMap<>();
         Optional<TopicDO> byId = topicRepository.findById(id);
-        return byId.map(ResultUtils::success).orElseGet(ResultUtils::dataNull);
+        TopicDO topicDO = byId.orElseThrow(() -> new RuntimeException("数据不存在"));
+        List<CommentDO> allByTopicId = commentRepository.findAllByTopicId(id);
+        map.put("topicDD", topicDO);
+        map.put("comment", allByTopicId);
+        return ResultUtils.success(map);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void clear() {
+        topicRepository.updateRanking();
+    }
+//2020-03-03 23:27:20.593
     private List<TopicDO> getList(List<TopicDO> list) {
         //新数据
         List<TopicDO> newData = new ArrayList<>();

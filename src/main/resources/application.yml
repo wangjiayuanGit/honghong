@@ -61,7 +61,7 @@ jwt:
 auth:
   wechat:
     sessionHost: https://api.weixin.qq.com/sns/jscode2session
-    appId: wx0573f0ca158560ca
-    secret: 9de8ffc5f90bc4c3a80d7ec70030f6ce
+    appId: wx8dc674b4d92bf7b3
+    secret: 5c63e78a796f3020ae6df214474491d2
     grantType: authorization_code
     url:

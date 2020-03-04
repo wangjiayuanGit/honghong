@@ -2,6 +2,7 @@ package com.honghong.control;
 
 import com.honghong.common.ResponseData;
 import com.honghong.service.LikeService;
+import com.honghong.util.PageUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class LikeController {
 
     @GetMapping("/list")
     @ApiOperation("点赞列表")
-    public ResponseData likeList(Long userId) {
-        return likeService.likeList(userId);
+    public ResponseData likeList(Long userId, PageUtils pageUtils) {
+        return likeService.likeList(userId, pageUtils);
     }
 }

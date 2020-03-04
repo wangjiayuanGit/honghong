@@ -11,7 +11,7 @@ import com.honghong.repository.TopicRepository;
 import com.honghong.repository.UserRepository;
 import com.honghong.service.LikeService;
 import com.honghong.util.BeanMapUtils;
-import com.honghong.util.JsonUtils;
+import com.honghong.util.PageUtils;
 import com.honghong.util.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,8 +37,8 @@ public class LikeServiceImpl implements LikeService {
         if (topicId == null || userId == null || num == null) {
             return ResultUtils.paramError();
         }
-        Optional<UserDO> optional = userRepository.findById(userId);
-        UserDO userDO = optional.orElseThrow(() -> new RuntimeException("用户数据不存在"));
+        UserDO userDO = new UserDO();
+        userDO.setId(userId);
         LikeDO likeDO = new LikeDO();
         likeDO.setTopicId(topicId);
         likeDO.setUser(userDO);
@@ -52,10 +52,7 @@ public class LikeServiceImpl implements LikeService {
         }
         TopicDO topicDO = byId.get();
         Integer sum = topicDO.getLikeSum() + num;
-        Integer likeUserNum = topicDO.getLikeUserNum();
         topicDO.setLikeSum(sum);
-        topicDO.setLikeUserNum(++likeUserNum);
-        topicDO.setLastLikeUser(userDO.getNickname());
         topicDO.setUpdatedAt(new Date());
         topicRepository.save(topicDO);
         likeRepository.save(likeDO);
@@ -63,11 +60,11 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public ResponseData likeList(Long userId) {
+    public ResponseData likeList(Long userId, PageUtils pageUtils) {
         if (userId == null) {
             return ResultUtils.paramError();
         }
-        List<Map<String, Object>> allByUserId = likeRepository.findAllByUserId(userId);
+        List<Map<String, Object>> allByUserId = likeRepository.findAllByUserId(userId, pageUtils.getPage() - 1, pageUtils.getSize());
         //将sql查询结果转为LikeVO
         List<LikeVO> likeVOS = new ArrayList<>();
         for (Map<String, Object> map : allByUserId) {

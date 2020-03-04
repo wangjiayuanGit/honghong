@@ -76,4 +76,6 @@ public interface TopicService {
      * @return
      */
     ResponseData detail(Long id);
+
+    void clear();
 }

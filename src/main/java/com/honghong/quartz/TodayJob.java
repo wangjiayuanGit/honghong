@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @EnableScheduling
-public class TodayJob implements ApplicationRunner {
+public class TodayJob {
     @Autowired
     private TopicService topicService;
     Logger logger = LoggerFactory.getLogger(TodayJob.class);
@@ -25,17 +25,8 @@ public class TodayJob implements ApplicationRunner {
     public void task() {
         System.out.println("任务2执行....");
         logger.info("定时任务启动，每天凌晨定时查库，并设置排行信息" + "--" + System.currentTimeMillis());
-        topicService.ranking();
+        topicService.clear();
     }
 
-    /**
-     * 程序启动时立即执行方法
-     *
-     * @param args
-     * @throws Exception
-     */
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        task();
-    }
+
 }
