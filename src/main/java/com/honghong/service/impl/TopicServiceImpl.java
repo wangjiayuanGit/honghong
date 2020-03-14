@@ -22,10 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.*;
 
 /**
@@ -41,6 +38,7 @@ public class TopicServiceImpl implements TopicService {
     private UserRepository userRepository;
     @Autowired
     private CommentRepository commentRepository;
+
     @Override
     public ResponseData addTopic(TopicDTO topicDTO) {
         Optional<UserDO> byId = userRepository.findById(topicDTO.getUserId());
@@ -91,15 +89,19 @@ public class TopicServiceImpl implements TopicService {
         if (userId == null) {
             return ResultUtils.paramError();
         }
+        ranking();
+        UserDO userDO = new UserDO();
+        userDO.setId(userId);
         Map<String, Object> map = new HashMap<>();
-        PageRequest page = pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC,"createdAt"));
+        PageRequest page = pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt"));
         Page<TopicDO> topicDOS = topicRepository.findAllByUserId(userId, page);
-        List<TopicDO> list = topicDOS.getContent();
-        List<Long> topicIds = new ArrayList<>();
-        for (TopicDO topic : list) {
-            topicIds.add(topic.getId());
-        }
-        Integer unreadMessage = commentRepository.countByTopicIdInAndIsReadIs(topicIds, false);
+//        List<TopicDO> list = topicDOS.getContent();
+//        List<Long> topicIds = new ArrayList<>();
+//        for (TopicDO topic : list) {
+//            topicIds.add(topic.getId());
+//        }
+//        Integer unreadMessage = commentRepository.countByTopicIdInAndIsReadIs(topicIds, false);
+        Integer unreadMessage = commentRepository.countByUserAndIsReadIs(userDO, false);
         map.put("topicDOS", topicDOS);
         map.put("unreadMessage", unreadMessage);
         return ResultUtils.success(map);
@@ -148,7 +150,7 @@ public class TopicServiceImpl implements TopicService {
     public void ranking() {
         PageUtils pageUtils = new PageUtils();
         Specification<TopicDO> specification = specificationBuild(null, 0, true);
-        Page<TopicDO> doPage = topicRepository.findAll(specification,pageUtils.getPageRequest());
+        Page<TopicDO> doPage = topicRepository.findAll(specification, pageUtils.getPageRequest());
         List<TopicDO> topicDOS = doPage.getContent();
         int index = 1;
         for (TopicDO topicDO : topicDOS) {
@@ -191,7 +193,35 @@ public class TopicServiceImpl implements TopicService {
     public void clear() {
         topicRepository.updateRanking();
     }
-//2020-03-03 23:27:20.593
+
+    @Override
+    public ResponseData other(Long userId, PageUtils pageUtils) {
+        if (userId == null) {
+            return ResultUtils.paramError();
+        }
+        ranking();
+        Page<TopicDO> page = topicRepository.findAllByUserId(userId, pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt")));
+        List<TopicDO> topicDOS = page.getContent();
+        List<Long> topicIds = new ArrayList<>();
+        for (TopicDO topicDO : topicDOS) {
+            topicIds.add(topicDO.getId());
+        }
+        List<CommentDO> all = commentRepository.findAllByTopicIdIn(topicIds);
+        for (TopicDO topicDO : topicDOS) {
+            List<CommentDO> commentDOS = new ArrayList<>();
+
+            for (CommentDO commentDO : all) {
+                if (commentDO.getTopicId().equals(topicDO.getId())) {
+                    commentDOS.add(commentDO);
+                }
+            }
+            topicDO.setCommentDOS(commentDOS);
+        }
+        return ResultUtils.success(topicDOS);
+
+    }
+
+    //2020-03-03 23:27:20.593
     private List<TopicDO> getList(List<TopicDO> list) {
         //新数据
         List<TopicDO> newData = new ArrayList<>();

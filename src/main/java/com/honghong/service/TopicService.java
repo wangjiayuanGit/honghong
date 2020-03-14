@@ -78,4 +78,14 @@ public interface TopicService {
     ResponseData detail(Long id);
 
     void clear();
+
+    /**
+     * 根据用户Id 查询出topic与其评论
+     *
+     * @param userId
+     * @param pageUtils
+     * @return
+     */
+    ResponseData other(Long userId, PageUtils pageUtils);
+
 }

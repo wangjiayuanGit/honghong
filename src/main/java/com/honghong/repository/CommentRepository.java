@@ -2,6 +2,7 @@ package com.honghong.repository;
 
 import com.honghong.common.CommentType;
 import com.honghong.model.topic.CommentDO;
+import com.honghong.model.user.UserDO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,4 +54,5 @@ public interface CommentRepository extends JpaRepository<CommentDO, Long> {
      * @return
      */
     Integer countByTopicIdInAndIsReadIs(List<Long> topicIds, Boolean isRead);
+    Integer countByUserAndIsReadIs(UserDO userDO, Boolean isRead);
 }

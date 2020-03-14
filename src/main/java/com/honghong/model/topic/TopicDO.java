@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author ：wangjy
@@ -66,12 +67,13 @@ public class TopicDO {
     private String nickname;
     @Column(name = "comment_user_num", columnDefinition = "int comment '点赞人数'")
     private Integer commentUserNum;
-    @Column(name = "comment_comment_user", columnDefinition = "varchar (50) comment '最后点赞人的昵称'")
+    @Column(name = "last_comment_user", columnDefinition = "varchar (50) comment '最后点赞人的昵称'")
     private String lastCommentUser;
 
     transient private Integer weight;
     transient private Double efficiency;
     transient private Integer ranking;
+    transient private List<CommentDO> commentDOS;
 
 
     public void addTopic(TopicDTO topicDTO) {

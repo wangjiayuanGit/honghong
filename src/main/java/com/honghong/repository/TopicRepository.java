@@ -36,6 +36,6 @@ public interface TopicRepository extends JpaRepository<TopicDO, Long>, JpaSpecif
 
 
     @Modifying
-    @Query(value = "update tb_topic set ranking_of_the_day =0",nativeQuery = true)
+    @Query(value = "update tb_topic set ranking_of_the_day =0 where ranking_of_the_day !=0",nativeQuery = true)
     void updateRanking();
 }

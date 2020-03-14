@@ -67,4 +67,10 @@ public class TopicController {
     public ResponseData detail(Long id) {
         return topicService.detail(id);
     }
+
+    @GetMapping("orthterTopicList")
+    @ApiOperation("别人的个人中心")
+    public ResponseData other(Long userId, PageUtils pageUtils) {
+        return topicService.other(userId, pageUtils);
+    }
 }
