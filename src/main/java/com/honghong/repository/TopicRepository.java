@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author ：wangjy
@@ -38,4 +39,6 @@ public interface TopicRepository extends JpaRepository<TopicDO, Long>, JpaSpecif
     @Modifying
     @Query(value = "update tb_topic set ranking_of_the_day =0 where ranking_of_the_day !=0",nativeQuery = true)
     void updateRanking();
+
+    List<TopicDO> findAllByUserId(Long userId);
 }

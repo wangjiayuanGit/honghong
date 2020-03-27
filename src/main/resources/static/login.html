@@ -47,62 +47,63 @@
 </main>
 <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="js/bootstrap.bundle.min.js" type="text/javascript" charset="utf-8"></script>
-<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
-    // $("#login").submit(function(){
-    //     if( $("#username").val() == '' || $("#password").val() == '' ){
-    //         alert("用户名或密码错误！")
-    //         return false
-    //     }
-    // })
-	var cxtPath = "https://127.0.0.1:8088"
-	// var cxtPath = "https://106.13.73.189:8088"
+	// $("#login").submit(function(){
+	//     if( $("#username").val() == '' || $("#password").val() == '' ){
+	//         alert("用户名或密码错误！")
+	//         return false
+	//     }
+	// })
+	// var cxtPath = "https://localhost:8088"
+	// var cxtPath = "https://127.0.0.1:8088"
+	var cxtPath = "https://hh.emmspirit.com:8088"
 	function login() {
-        let username = $("#username").val();
-        let password = $("#password").val();
-        if (username ===''||username==null||username === undefined){
-            alert("用户名或密码不能为空！")
-            return;
-        }
-        if (password ===''||password==null||password === undefined){
-            alert("用户名或密码不能为空！")
-            return;
-        }
-        let formdata = new FormData();
-        formdata.append("username",username)
-        formdata.append("password",password)
-        sendAjax("/admin/login","post",formdata,function (data) {
+		let username = $("#username").val();
+		let password = $("#password").val();
+		if (username ===''||username==null||username === undefined){
+			alert("用户名或密码不能为空！")
+			return;
+		}
+		if (password ===''||password==null||password === undefined){
+			alert("用户名或密码不能为空！")
+			return;
+		}
+		let formdata = new FormData();
+		formdata.append("username",username)
+		formdata.append("password",password)
+		sendAjax("/admin/login","post",formdata,function (data) {
 			if (data.code===200){
-			    localStorage.setItem("token",data.data.token)
+				localStorage.setItem("token",data.data.token)
 				// window.location=cxtPath+"/templates/index.html"
 				window.location=cxtPath+"/index"
 			}else {
-                alert(data.msg)
+				alert(data.msg)
 			}
-        },function (err) {
-            alert("服务器错误!!!")
-        })
-    }
-    function sendAjax  (url, method, formData, successCallBack, errorCallBack) {
-        if (! formData) {
-            formData = "";
-        }
-        $.ajax({
-            url: cxtPath + url,
-            method: method,
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (data) {
-                if (!! successCallBack)
-                    successCallBack(data);
-            },
-            error: function(err){
-                if (!! errorCallBack)
-                    errorCallBack(err);
-            }
-        });
-    }
+		},function (err) {
+			alert("服务器错误!!!")
+		})
+	}
+	function sendAjax  (url, method, formData, successCallBack, errorCallBack) {
+		if (! formData) {
+			formData = "";
+		}
+		$.ajax({
+			url: cxtPath + url,
+			method: method,
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function (data) {
+				if (!! successCallBack)
+					successCallBack(data);
+			},
+			error: function(err){
+				if (!! errorCallBack)
+					errorCallBack(err);
+			}
+		});
+	}
 </script>
+<script src="js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 </body>
 </html>

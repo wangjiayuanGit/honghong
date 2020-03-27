@@ -82,6 +82,7 @@ public class TopicDO {
         this.city = topicDTO.getCity();
         this.truth = topicDTO.getIsTrue();
         this.likeSum = 0;
+        this.rankingOfTheDay = 0;
         this.commentSum = 0;
         this.createdAt = new Date();
         this.updatedAt = new Date();
@@ -90,5 +91,18 @@ public class TopicDO {
         this.commentUserNum = 0;
     }
 
+    public void fakeData(UserDO userDO, String content, Integer commentSum, Integer likeSum) {
+        this.user = userDO;
+        this.city = userDO.getCity();
+        this.content = content;
+        this.commentSum = commentSum==null?0:commentSum;
+        this.likeSum = likeSum==null?0:likeSum;
+        this.createdAt = userDO.getCreatedAt();
+        this.updatedAt = userDO.getCreatedAt();
+        this.truth = false;
+        this.rankingOfTheDay = 0;
+        this.nickname = userDO.getNickname();
+        this.state = 0;
+    }
 
 }

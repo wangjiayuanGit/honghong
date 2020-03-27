@@ -5,6 +5,8 @@ import com.honghong.model.DataDTO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.util.PageUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -63,4 +65,13 @@ public interface DataService {
      * @return
      */
     ResponseData leaderBoard(PageUtils pageUtils);
+
+    /**
+     * 数据导入
+     *
+     * @param in
+     * @param fileName
+     * @return
+     */
+    ResponseData upload(InputStream in, String fileName);
 }

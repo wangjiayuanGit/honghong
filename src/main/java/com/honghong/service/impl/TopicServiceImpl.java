@@ -9,10 +9,7 @@ import com.honghong.repository.CommentRepository;
 import com.honghong.repository.TopicRepository;
 import com.honghong.repository.UserRepository;
 import com.honghong.service.TopicService;
-import com.honghong.util.AppearanceRate;
-import com.honghong.util.DataUtils;
-import com.honghong.util.PageUtils;
-import com.honghong.util.ResultUtils;
+import com.honghong.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -95,13 +93,14 @@ public class TopicServiceImpl implements TopicService {
         Map<String, Object> map = new HashMap<>();
         PageRequest page = pageUtils.getSortPageRequest(new Sort(Sort.Direction.DESC, "createdAt"));
         Page<TopicDO> topicDOS = topicRepository.findAllByUserId(userId, page);
-//        List<TopicDO> list = topicDOS.getContent();
-//        List<Long> topicIds = new ArrayList<>();
-//        for (TopicDO topic : list) {
-//            topicIds.add(topic.getId());
-//        }
-//        Integer unreadMessage = commentRepository.countByTopicIdInAndIsReadIs(topicIds, false);
-        Integer unreadMessage = commentRepository.countByUserAndIsReadIs(userDO, false);
+        List<TopicDO> list = topicRepository.findAllByUserId(userId);
+
+        List<Long> topicIds = new ArrayList<>();
+        for (TopicDO topic : list) {
+            topicIds.add(topic.getId());
+        }
+        Integer unreadMessage = commentRepository.countByTopicIdInAndIsReadIs(topicIds, false);
+//        Integer unreadMessage = commentRepository.countByUserAndIsReadIs(userDO, false);
         map.put("topicDOS", topicDOS);
         map.put("unreadMessage", unreadMessage);
         return ResultUtils.success(map);
@@ -147,7 +146,9 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Transactional
     public void ranking() {
+        clear();
         PageUtils pageUtils = new PageUtils();
         Specification<TopicDO> specification = specificationBuild(null, 0, true);
         Page<TopicDO> doPage = topicRepository.findAll(specification, pageUtils.getPageRequest());
@@ -244,27 +245,17 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private Specification<TopicDO> specificationBuild(Long userId, Integer dayOrMonth, boolean needToSort) {
-        Date now = new Date();
-        //过去一天的时间
-        Calendar day = Calendar.getInstance();
-        day.setTime(new Date());
-        day.add(Calendar.HOUR, -24);
-        Date oneDay = day.getTime();
-        //过去一个月的时间
-        Calendar month = Calendar.getInstance();
-        month.setTime(new Date());
-        month.add(Calendar.MONTH, -1);
-        Date oneMonth = month.getTime();
         return (Specification<TopicDO>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             Predicate[] arr = new Predicate[predicates.size()];
             Predicate predicate = criteriaBuilder.conjunction();
             if (dayOrMonth == 0) {
-                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneDay));
+                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), DateUtils.getStartOfDay(new Date())));
+                predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), DateUtils.getEndOfDay(new Date())));
             } else {
-                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), oneMonth));
+                predicate.getExpressions().add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt").as(Date.class), DateUtils.getStartOfTheMonth()));
+                predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), DateUtils.getEndOfTheMouth()));
             }
-            predicate.getExpressions().add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt").as(Date.class), now));
             if (userId != null) {
                 UserDO userDO = new UserDO();
                 userDO.setId(userId);

@@ -56,4 +56,13 @@ public class UserDO {
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "parent", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
 //    List<TopicDO> topicDOS;
+
+    public void fakeData(String nickname, String headImg, String city,Date createdAt) {
+        this.nickname = nickname;
+        this.headImg = headImg;
+        this.city = city;
+        this.createdAt = createdAt;
+        this.updatedAt = createdAt;
+        this.state = 0;
+    }
 }

@@ -1,8 +1,10 @@
 package com.honghong.service.impl;
 
+import com.honghong.common.ResponseCode;
 import com.honghong.common.ResponseData;
 import com.honghong.dao.DataDAO;
 import com.honghong.model.DataDTO;
+import com.honghong.model.TopicUserDTO;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
@@ -11,9 +13,7 @@ import com.honghong.repository.LikeRepository;
 import com.honghong.repository.TopicRepository;
 import com.honghong.repository.UserRepository;
 import com.honghong.service.DataService;
-import com.honghong.util.DateUtils;
-import com.honghong.util.PageUtils;
-import com.honghong.util.ResultUtils;
+import com.honghong.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +22,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -80,8 +86,9 @@ public class DataServiceImpl implements DataService {
             Predicate[] arr = new Predicate[predicates.size()];
             if (StringUtils.isNotBlank(keyword)) {
                 Predicate predicate1 = criteriaBuilder.like(root.get("content"), "%" + keyword + "%");
-                Predicate predicate2 = criteriaBuilder.like(root.get("city"), "%" + keyword + "%");
-                predicates.add(criteriaBuilder.or(predicate1, predicate2));
+                Predicate predicate2 = criteriaBuilder.like(root.get("nickname"), "%" + keyword + "%");
+                Predicate predicate3 = criteriaBuilder.like(root.get("city"), "%" + keyword + "%");
+                predicates.add(criteriaBuilder.or(predicate1, predicate2,predicate3));
             }
 
             query.where(predicates.toArray(arr));
@@ -137,7 +144,29 @@ public class DataServiceImpl implements DataService {
         for (TopicDO topicDO : list) {
             topicDO.setRanking(ranking++);
         }
-        return ResultUtils.success(list);
+        return ResultUtils.success(page);
+    }
+
+    @Override
+    public ResponseData upload(InputStream in, String fileName) {
+        List<ExcelHead> excelHeads = new TopicUserDTO().creatHeader();
+        List<TopicUserDTO> topicUserDTOS = null;
+        try {
+            topicUserDTOS = ParseExcelUtils.readExcelToEntity(TopicUserDTO.class, in, fileName, excelHeads);
+//TODO 待优化
+            topicUserDTOS.parallelStream().forEach(topicUserDTO -> {
+                UserDO userDO = new UserDO();
+                TopicDO topicDO = new TopicDO();
+                userDO.fakeData(topicUserDTO.getNickName(), topicUserDTO.getHeadImage(), topicUserDTO.getCity(), topicUserDTO.getCreatedAt());
+                userDO = userRepository.save(userDO);
+                topicDO.fakeData(userDO, topicUserDTO.getContent(), topicUserDTO.getCommentSum(), topicUserDTO.getLikeSum());
+                topicRepository.save(topicDO);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultUtils.common(400, e.getMessage());
+        }
+        return ResultUtils.success();
     }
 
 
