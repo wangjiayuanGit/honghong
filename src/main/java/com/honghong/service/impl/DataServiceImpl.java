@@ -5,6 +5,8 @@ import com.honghong.common.ResponseData;
 import com.honghong.dao.DataDAO;
 import com.honghong.model.DataDTO;
 import com.honghong.model.TopicUserDTO;
+import com.honghong.model.topic.CommentDO;
+import com.honghong.model.topic.LikeDO;
 import com.honghong.model.topic.TopicDO;
 import com.honghong.model.topic.TopicDTO;
 import com.honghong.model.user.UserDO;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import javax.servlet.http.HttpServletResponse;
@@ -121,17 +124,29 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ResponseData updateData(Long topicId, Integer likeNum) {
         if (topicId == null || likeNum < 0) {
             return ResultUtils.paramError();
         }
+        UserDO userDO = new UserDO();
+        userDO.setId(2L);
         Optional<TopicDO> byId = topicRepository.findById(topicId);
-        if (!byId.isPresent()) {
-            return ResultUtils.dataNull();
+        TopicDO topicDO = byId.orElseThrow(()->new RuntimeException("未查找到数据"));
+        if (likeNum < topicDO.getLikeSum()) {
+            throw new RuntimeException("你不能减少数据点赞数量");
         }
-        TopicDO topicDO = byId.get();
+        LikeDO likeDO = new LikeDO();
+        likeDO.setTopicId(topicId);
+        likeDO.setUser(userDO);
+        likeDO.setNum(likeNum-topicDO.getLikeSum());
+        likeDO.setCreatedAt(new Date());
+        likeDO.setUpdatedAt(new Date());
+        likeDO.setState(0);
         topicDO.setLikeSum(likeNum);
+        topicDO.setLastCommentUser("热心网友");
         topicDO = topicRepository.saveAndFlush(topicDO);
+        likeRepository.save(likeDO);
         return ResultUtils.success(topicDO);
     }
 
@@ -154,6 +169,7 @@ public class DataServiceImpl implements DataService {
         try {
             topicUserDTOS = ParseExcelUtils.readExcelToEntity(TopicUserDTO.class, in, fileName, excelHeads);
 //TODO 待优化
+            
             topicUserDTOS.parallelStream().forEach(topicUserDTO -> {
                 UserDO userDO = new UserDO();
                 TopicDO topicDO = new TopicDO();

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -36,7 +37,8 @@ public interface TopicRepository extends JpaRepository<TopicDO, Long>, JpaSpecif
     Integer countByTruthAndCreatedAtAfterAndCreatedAtBefore(Boolean truth, Date start, Date end);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
+    @Transactional
     @Query(value = "update tb_topic set ranking_of_the_day =0 where ranking_of_the_day !=0",nativeQuery = true)
     void updateRanking();
 

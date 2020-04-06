@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @EnableScheduling
-public class TodayJob {
+public class TodayJob implements ApplicationRunner {
     @Autowired
     private TopicService topicService;
     Logger logger = LoggerFactory.getLogger(TodayJob.class);
@@ -29,4 +29,8 @@ public class TodayJob {
     }
 
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        task();
+    }
 }

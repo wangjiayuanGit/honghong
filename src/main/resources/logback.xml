@@ -43,7 +43,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    <root level="info">
+    <root level="error">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SCBASE"/>
     </root>

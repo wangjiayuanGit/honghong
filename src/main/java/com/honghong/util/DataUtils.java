@@ -2,10 +2,7 @@ package com.honghong.util;
 
 import com.honghong.model.topic.TopicDO;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author ：wangjy
@@ -23,22 +20,24 @@ public class DataUtils {
      */
     public static boolean isNewData(Date date) {
         Date now = new Date();
-        return now.getTime() - date.getTime() < ONE_HOUR;
+        return now.getTime() - date.getTime() < 96 * ONE_HOUR;
     }
 
-    public static List<TopicDO> dieOut(List<TopicDO> list) {
+    public static List<TopicDO>  dieOut(List<TopicDO> list) {
         for (TopicDO topicDO : list) {
-            double n = (double) (topicDO.getLikeSum()) / topicDO.getCreatedAt().getTime();
+            double n = (double) (topicDO.getLikeSum()) /(new Date().getTime()-topicDO.getCreatedAt().getTime()) ;
             topicDO.setEfficiency(n);
         }
         list = new ArrayList<>(list);
         list.sort((y, x) -> Double.compare(x.getEfficiency(), y.getEfficiency()));
         //淘汰后剩余的条目数
-        int size = (int) (list.size() * 0.78);
+        int live = (int) (list.size() * 0.78);
         //淘汰后剩余的数据
         List<TopicDO> result = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            result.add(list.get(i));
+        for (int i = 0; i < list.size(); i++) {
+            if (i < live) {
+                result.add(list.get(i));
+            }
         }
         return result;
     }

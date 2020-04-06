@@ -70,7 +70,12 @@ public class TopicServiceImpl implements TopicService {
             List<Predicate> predicates = new ArrayList<>();
             Predicate[] arr = new Predicate[predicates.size()];
             if (StringUtils.isNoneEmpty(city)) {
-                predicates.add(criteriaBuilder.like(root.get("city"), "%" + city + "%"));
+
+                Predicate predicate1 = criteriaBuilder.like(root.get("city"), "%" + city + "%");
+                Predicate predicate2 = criteriaBuilder.equal(root.get("city"), "");
+//                predicates.add(criteriaBuilder.like(root.get("city"), "%" + city + "%"));
+//                predicates.add(criteriaBuilder.equal(root.get("city"), ""));
+                predicates.add(criteriaBuilder.or(predicate1, predicate2));
             }
             query.where(predicates.toArray(arr));
             query.orderBy(criteriaBuilder.desc(root.get("createdAt")));
@@ -146,7 +151,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Transactional
     public void ranking() {
         clear();
         PageUtils pageUtils = new PageUtils();
@@ -235,9 +239,11 @@ public class TopicServiceImpl implements TopicService {
                 oldData.add(topicDO);
             }
         }
-        newData = AppearanceRate.getList(newData);
         oldData = DataUtils.dieOut(oldData);
-        oldData = AppearanceRate.getList(oldData, 100);
+        oldData = AppearanceRate.getOldDataList(oldData, 1000);
+
+        newData = AppearanceRate.getResult(newData,300);
+
         List<TopicDO> result = new ArrayList<>();
         result.addAll(newData);
         result.addAll(oldData);

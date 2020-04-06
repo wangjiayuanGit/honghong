@@ -13,9 +13,10 @@ import java.util.Date;
  * @date ：2019/12/2 15:07
  */
 public class DateUtils {
-    private static Calendar calendar = Calendar.getInstance();
 
-    private static void initCalendar() {
+    private static Calendar initCalendar() {
+        Calendar calendar = Calendar.getInstance();
+
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         //将小时至0
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -25,6 +26,7 @@ public class DateUtils {
         calendar.set(Calendar.SECOND, 0);
         //将毫秒至0
         calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
     }
 
     // 获得某天最小时间
@@ -48,13 +50,12 @@ public class DateUtils {
      * @return
      */
     public static Date getStartOfTheMonth() {
-        initCalendar();
-        return calendar.getTime();
+        return initCalendar().getTime();
     }
 
     public static Date getEndOfTheMouth() {
         //将当前月加1；
-        initCalendar();
+        Calendar calendar = initCalendar();
         calendar.add(Calendar.MONTH, 1);
         //在当前月的下一月基础上减去1毫秒
         calendar.add(Calendar.MILLISECOND, -1);
@@ -66,5 +67,7 @@ public class DateUtils {
         System.out.println("今天结束时间：" + getEndOfDay(new Date()));
         System.out.println("本月开始时间" + getStartOfTheMonth());
         System.out.println("本月结束时间" + getEndOfTheMouth());
+        System.out.println("本月开始时间" + getStartOfTheMonth());
+
     }
 }

@@ -87,5 +87,4 @@ public interface TopicService {
      * @return
      */
     ResponseData other(Long userId, PageUtils pageUtils);
-
 }
