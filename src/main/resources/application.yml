@@ -21,7 +21,8 @@ spring:
   # mysql数据库连接配置
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://106.13.73.189:3306/hongh?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC
+#    url: jdbc:mysql://106.13.73.189:3306/hongh?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://106.13.73.189:3306/hongh?useUnicode=true&autoReconnect=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC
     username: shop
     password: Shop@#123.
   jpa:
